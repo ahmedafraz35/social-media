@@ -1,0 +1,71 @@
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="#">SocialBook</a>
+    <form class="d-flex ms-auto">
+      <input class="form-control me-2" type="search" placeholder="Search posts, friends..." aria-label="Search">
+      <button class="btn btn-light" type="submit">Search</button>
+    </form>
+    <button (click)="logout()" class="btn btn-outline-light ms-3">Logout</button>
+  </div>
+</nav>
+
+<!-- Main Layout -->
+<div class="container-fluid">
+  <div class="row">
+    <!-- Feed -->
+  <div class="col-lg-8 col-md-10 mx-auto mb-4">
+      <div class="d-flex flex-column align-items-center">
+        <!-- Post Card Example -->
+  <div class="card w-100 mb-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+              <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle me-2" width="40" height="40" alt="User">
+              <div>
+                <h6 class="mb-0">John Doe</h6>
+                <small class="text-muted">2 hours ago</small>
+              </div>
+            </div>
+            <p class="card-text">Excited to join this new social platform! 🚀</p>
+            <div class="d-flex mb-2">
+              <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="img-fluid rounded me-2" style="max-width: 180px;" alt="Post image">
+              <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="img-fluid rounded" style="max-width: 180px;" alt="Post image">
+            </div>
+            <hr>
+            <div class="d-flex justify-content-around">
+              <button class="btn btn-light btn-sm px-4 py-2 fw-bold text-primary border-0"><i class="bi bi-hand-thumbs-up me-2"></i>Like</button>
+              <button class="btn btn-light btn-sm px-4 py-2 fw-bold text-secondary border-0"><i class="bi bi-chat me-2"></i>Comment</button>
+              <button class="btn btn-light btn-sm px-4 py-2 fw-bold text-success border-0"><i class="bi bi-share me-2"></i>Share</button>
+            </div>
+          </div>
+        </div>
+        <!-- Repeat for more posts -->
+  <div class="card w-100 mb-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle me-2" width="40" height="40" alt="User">
+              <div>
+                <h6 class="mb-0">Jane Smith</h6>
+                <small class="text-muted">5 hours ago</small>
+              </div>
+            </div>
+            <p class="card-text">Had a great day with friends at the park! 🌳</p>
+            <div class="d-flex mb-2">
+              <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" class="img-fluid rounded me-2" style="max-width: 180px;" alt="Post image">
+              <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80" class="img-fluid rounded" style="max-width: 180px;" alt="Post image">
+            </div>
+            <hr>
+            <div class="d-flex justify-content-around">
+              <button class="btn btn-light btn-sm px-4 py-2 fw-bold text-primary border-0"><i class="bi bi-hand-thumbs-up me-2"></i>Like</button>
+              <button class="btn btn-light btn-sm px-4 py-2 fw-bold text-secondary border-0"><i class="bi bi-chat me-2"></i>Comment</button>
+              <button class="btn btn-light btn-sm px-4 py-2 fw-bold text-success border-0"><i class="bi bi-share me-2"></i>Share</button>
+            </div>
+          </div>
+        </div>
+        <!-- Add more post cards as needed -->
+      </div>
+    </div>
+
+  </div>
+</div>
