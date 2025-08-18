@@ -31,7 +31,7 @@
 							<div class="d-flex align-items-center ms-3">
 								<div class="dropdown" style="position: relative;">
 									<button class="btn p-0 border-0 bg-transparent d-flex align-items-center">
-										<img [src]="user?.imageUrl || 'https://randomuser.me/api/portraits/men/32.jpg'" alt="Profile" width="36" height="36" class="rounded-circle border border-2 border-white shadow-sm">
+										<img [src]="profileImage" alt="Profile" width="36" height="36" class="rounded-circle border border-2 border-white shadow-sm">
 									</button>
 								</div>
 							</div>
@@ -40,10 +40,10 @@
 				</nav>
 				<div class="card-body p-5">
 					<div class="d-flex align-items-center mb-4">
-						<img [src]="user?.imageUrl || 'https://randomuser.me/api/portraits/men/32.jpg'" alt="Profile" class="rounded-circle border border-2 border-info shadow-sm me-4" width="80" height="80">
+						<img [src]="profileImage" alt="Profile" class="rounded-circle border border-2 border-info shadow-sm me-4" width="80" height="80">
 						<div>
-							<h3 class="fw-bold mb-1" style="color: #44baff;">{{ user?.username || user?.firstName || 'User' }}</h3>
-							<span class="text-muted fs-5">{{ user?.emailAddress }}</span>
+							<h3 class="fw-bold mb-1" style="color: #44baff;">{{ username }}</h3>
+							<span class="text-muted fs-5">test@user.com</span>
 						</div>
 					</div>
 					<hr>
@@ -52,8 +52,8 @@
 							<div class="bg-light rounded-3 p-4 h-100">
 								<h5 class="side-heading mb-3">Account Details</h5>
 								<ul class="list-group list-group-flush">
-									<li class="list-group-item"><strong>Username:</strong> {{ user?.username || user?.firstName }}</li>
-									<li class="list-group-item"><strong>Email:</strong> {{ user?.emailAddress }}</li>
+									<li class="list-group-item"><strong>Username:</strong> {{ username }}</li>
+									<li class="list-group-item"><strong>Email:</strong> test@user.com</li>
 								</ul>
 							</div>
 						</div>
@@ -68,15 +68,57 @@
 							</div>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row mb-4">
 						<div class="col-12">
 							<div class="bg-light rounded-3 p-4">
-								<h5 class="side-heading mb-3">Other Options</h5>
-								<div class="d-flex flex-wrap gap-3">
-									<a class="btn btn-outline-info" routerLink="/privacy">Privacy Settings</a>
-									<a class="btn btn-outline-info" routerLink="/notifications">Notification Settings</a>
-									<a class="btn btn-outline-info" routerLink="/support">Support</a>
+								<h5 class="side-heading mb-3">Manage Posts</h5>
+								<!-- Add Post -->
+								<form (ngSubmit)="addPost()" class="mb-3">
+									<div class="mb-2">
+										<textarea [(ngModel)]="newPostText" name="newPostText" class="form-control" placeholder="What's on your mind?"></textarea>
+									</div>
+									<div class="mb-2">
+										<input type="file" (change)="onPostImageChange($event)" accept="image/*" class="form-control">
+									</div>
+									<button class="btn btn-primary" type="submit">Add Post</button>
+								</form>
+								<!-- List Posts -->
+								<div *ngFor="let post of userPosts; let i = index" class="mb-3">
+									<div class="card">
+										<div class="card-body">
+											<div class="d-flex align-items-center mb-2">
+												<img [src]="profileImage" width="40" height="40" class="rounded-circle me-2">
+												<span class="fw-bold">{{ username }}</span>
+											</div>
+											<p>{{ post.caption }}</p>
+											<img *ngIf="post.imageUrl" [src]="post.imageUrl" class="img-fluid rounded mb-2" style="max-height:200px;object-fit:cover;">
+											<div class="d-flex gap-2">
+												<button class="btn btn-sm btn-warning" (click)="editPost(i)">Edit</button>
+												<button class="btn btn-sm btn-danger" (click)="deletePost(i)">Delete</button>
+											</div>
+											<!-- Edit Post Modal -->
+											<div *ngIf="editIndex === i" class="mt-2">
+												<textarea [(ngModel)]="editPostText" name="editPostText" class="form-control mb-2"></textarea>
+												<input type="file" (change)="onPostImageChange($event)" accept="image/*" class="form-control mb-2">
+												<button class="btn btn-success btn-sm" (click)="saveEditPost(i)">Save</button>
+												<button class="btn btn-secondary btn-sm" (click)="cancelEditPost()">Cancel</button>
+											</div>
+										</div>
+									</div>
 								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row mb-4">
+						<div class="col-12">
+							<div class="bg-light rounded-3 p-4">
+								<h5 class="side-heading mb-3">Profile Picture</h5>
+								<form (ngSubmit)="uploadProfileImage()">
+									<div class="mb-2">
+										<input type="file" (change)="onProfileImageChange($event)" accept="image/*" class="form-control">
+									</div>
+									<button class="btn btn-info" type="submit">Upload Profile Picture</button>
+								</form>
 							</div>
 						</div>
 					</div>
