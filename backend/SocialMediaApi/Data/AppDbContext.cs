@@ -13,6 +13,8 @@ namespace SocialMediaApi.Data
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Like> Likes { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<ChatRoom> ChatRooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -76,6 +78,42 @@ namespace SocialMediaApi.Data
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Likes)
                     .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // Chat configuration
+            modelBuilder.Entity<Chat>(entity =>
+            {
+                entity.ToTable("Chats");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Message).IsRequired().HasMaxLength(1000);
+                
+                entity.HasOne(d => d.Sender)
+                    .WithMany()
+                    .HasForeignKey(d => d.SenderId)
+                    .OnDelete(DeleteBehavior.NoAction);
+                
+                entity.HasOne(d => d.Receiver)
+                    .WithMany()
+                    .HasForeignKey(d => d.ReceiverId)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // ChatRoom configuration
+            modelBuilder.Entity<ChatRoom>(entity =>
+            {
+                entity.ToTable("ChatRooms");
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => new { e.User1Id, e.User2Id }).IsUnique();
+                
+                entity.HasOne(d => d.User1)
+                    .WithMany()
+                    .HasForeignKey(d => d.User1Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+                
+                entity.HasOne(d => d.User2)
+                    .WithMany()
+                    .HasForeignKey(d => d.User2Id)
                     .OnDelete(DeleteBehavior.NoAction);
             });
         }

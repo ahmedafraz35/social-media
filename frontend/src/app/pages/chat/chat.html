@@ -1,22 +1,22 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
 	<div class="container-fluid">
-		<a class="navbar-brand fw-bold" href="#">SocialBook</a>
+		<a class="navbar-brand fw-bold" [routerLink]="['/home']">SocialBook</a>
 		<div class="d-flex w-100 align-items-center justify-content-between">
 			<ul class="navbar-nav">
 				<li class="nav-item">
-					<a class="nav-link d-flex align-items-center" [routerLink]="['/chat']"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+					<a class="nav-link d-flex align-items-center" [routerLink]="['/home']"><i class="bi bi-house me-1"></i>Home</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link d-flex align-items-center active" [routerLink]="['/chat']"><i class="bi bi-chat-dots me-1"></i>Chat</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link d-flex align-items-center" [routerLink]="['/profile']"><i class="bi bi-person me-1"></i>Profile</a>
 				</li>
-				<li class="nav-item">
-					<a class="nav-link d-flex align-items-center" href="#"><i class="bi bi-gear me-1"></i>Settings</a>
-				</li>
 			</ul>
 			<form class="d-flex mx-auto searchbar-professional" style="width: 400px; max-width: 100%;">
 				<div class="input-group shadow rounded-pill overflow-hidden">
-					<input class="form-control border-0 px-4 py-2" type="search" placeholder="Search chats..." aria-label="Search" style="background: #ffffff; color: #fff;">
+					<input class="form-control border-0 px-4 py-2" type="search" placeholder="Search users..." aria-label="Search" style="background: #ffffff; color: #333;">
 					<button class="btn btn-outline-light px-4" type="submit" style="background: #333; border: none;">
 						<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
 							<path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99c.41.41 1.09.41 1.5 0s.41-1.09 0-1.5l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#fff"/>
@@ -27,7 +27,7 @@
 			<div class="d-flex align-items-center ms-3">
 				<div class="dropdown" style="position: relative;">
 					<button class="btn p-0 border-0 bg-transparent d-flex align-items-center">
-						<img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-white shadow-sm">
+						<img [src]="currentUser?.profileImage || 'https://randomuser.me/api/portraits/men/32.jpg'" alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-white shadow-sm">
 					</button>
 				</div>
 			</div>
@@ -38,37 +38,147 @@
 <!-- Chat Layout -->
 <div class="container-fluid">
 	<div class="row" style="height: 80vh;">
-		<!-- Friends Sidebar -->
+		<!-- Users Sidebar -->
 		<div class="col-lg-3 col-md-4 d-none d-md-block">
 			<div class="sidebar-left h-100 p-3" style="background: #f3f3f3; border-radius: 16px;">
-				<h5 class="side-heading mb-4">Friends</h5>
-				<ul class="nav flex-column left-links-list">
-					<li class="nav-item mb-2" *ngFor="let friend of friends">
-						<a class="nav-link left-side-links d-flex justify-content-between align-items-center px-3 py-2 rounded shadow-sm" href="#" (click)="selectFriend(friend)">
-							<span class="fw-semibold">{{ friend.name }}</span>
-							<span class="badge bg-success ms-2" *ngIf="friend.online">Online</span>
-						</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<!-- Chat Area -->
-		<div class="col-lg-9 col-md-8 px-0 d-flex flex-column" style="height: 100%; position: relative;">
-			<div class="chat-area flex-grow-1 d-flex flex-column justify-content-end" style="background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(100,175,255,0.10); padding: 32px 24px 16px 24px; overflow-y: auto;">
-				<div *ngFor="let msg of messages" class="mb-3">
-					<div [ngClass]="{'text-end': msg.fromMe, 'text-start': !msg.fromMe}">
-						<span class="d-inline-block px-4 py-2 rounded-pill" [ngStyle]="msg.fromMe ? {'background':'#44baff','color':'#fff'} : {'background':'#f7fbff','color':'#222'}">
-							{{ msg.text }}
-						</span>
+				<h5 class="side-heading mb-4">Chat Users</h5>
+				
+				<!-- Loading State -->
+				<div *ngIf="isLoading" class="text-center py-4">
+					<div class="spinner-border text-primary" role="status">
+						<span class="visually-hidden">Loading...</span>
 					</div>
 				</div>
+
+				<!-- Recent Conversations -->
+				<div *ngIf="!isLoading && conversations.length > 0" class="mb-4">
+					<h6 class="text-muted mb-3">Recent Chats</h6>
+					<ul class="nav flex-column left-links-list">
+						<li class="nav-item mb-2" *ngFor="let conv of conversations">
+							<div class="nav-link left-side-links d-flex align-items-center px-3 py-2 rounded shadow-sm cursor-pointer" 
+							     (click)="selectUser(conv.otherUser)"
+							     [ngClass]="{'active': selectedUser?.id === conv.otherUser.id}"
+							     style="cursor: pointer;">
+								<div class="d-flex align-items-center w-100">
+									<img [src]="conv.otherUser.profileImage || 'https://randomuser.me/api/portraits/men/32.jpg'" 
+									     alt="Profile" width="32" height="32" class="rounded-circle me-2">
+									<div class="flex-grow-1">
+										<div class="fw-semibold">{{ conv.otherUser.username }}</div>
+										<small class="text-muted">{{ conv.lastMessage || 'No messages yet' }}</small>
+									</div>
+									<div class="text-end">
+										<small class="text-muted">{{ formatTime(conv.lastMessageAt) }}</small>
+										<span *ngIf="conv.unreadCount > 0" class="badge bg-primary rounded-pill ms-1">{{ conv.unreadCount }}</span>
+									</div>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<!-- All Users -->
+				<div *ngIf="!isLoading">
+					<h6 class="text-muted mb-3">All Users</h6>
+					<ul class="nav flex-column left-links-list">
+						<li class="nav-item mb-2" *ngFor="let user of chatUsers">
+							<div class="nav-link left-side-links d-flex align-items-center px-3 py-2 rounded shadow-sm" 
+							     (click)="selectUser(user)"
+							     [ngClass]="{'active': selectedUser?.id === user.id}"
+							     style="cursor: pointer;">
+								<img [src]="user.profileImage || 'https://randomuser.me/api/portraits/men/32.jpg'" 
+								     alt="Profile" width="32" height="32" class="rounded-circle me-2">
+								<span class="fw-semibold">{{ user.username }}</span>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<!-- Empty State -->
+				<div *ngIf="!isLoading && chatUsers.length === 0" class="text-center py-4">
+					<i class="bi bi-chat-dots display-4 text-muted"></i>
+					<p class="text-muted mt-2">No users available to chat</p>
+				</div>
 			</div>
-			<!-- Message Input fixed at bottom -->
-			<div class="chat-input-bar p-3" style="background: #f3f3f3; border-radius: 0 0 16px 16px; position: absolute; left: 0; right: 0; bottom: 0;">
-				<form (ngSubmit)="sendMessage()" class="d-flex align-items-center gap-2">
-					<input [(ngModel)]="messageText" name="messageText" class="form-control border-0 px-4 py-2 rounded-pill" type="text" placeholder="Type a message..." style="background: #fff; color: #222;">
-					<button class="btn btn-post-action px-4" type="submit"><i class="bi bi-send me-2"></i>Send</button>
-				</form>
+		</div>
+
+		<!-- Chat Area -->
+		<div class="col-lg-9 col-md-8 px-0 d-flex flex-column" style="height: 100%; position: relative;">
+			<!-- No User Selected -->
+			<div *ngIf="!selectedUser" class="chat-area flex-grow-1 d-flex flex-column justify-content-center align-items-center" 
+			     style="background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(100,175,255,0.10);">
+				<i class="bi bi-chat-dots display-1 text-muted"></i>
+				<h4 class="text-muted mt-3">Select a user to start chatting</h4>
+				<p class="text-muted">Choose a user from the sidebar to begin your conversation</p>
+			</div>
+
+			<!-- Chat Interface -->
+			<div *ngIf="selectedUser" class="chat-area flex-grow-1 d-flex flex-column" 
+			     style="background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(100,175,255,0.10);">
+				
+				<!-- Chat Header -->
+				<div class="chat-header p-3 border-bottom" style="background: #f8f9fa; border-radius: 16px 16px 0 0;">
+					<div class="d-flex align-items-center">
+						<img [src]="selectedUser.profileImage || 'https://randomuser.me/api/portraits/men/32.jpg'" 
+						     alt="Profile" width="40" height="40" class="rounded-circle me-3">
+						<div>
+							<h6 class="mb-0">{{ selectedUser.username }}</h6>
+							<small class="text-muted">Online</small>
+						</div>
+					</div>
+				</div>
+
+				<!-- Messages Area -->
+				<div class="chat-messages flex-grow-1 p-3" style="overflow-y: auto; max-height: calc(100% - 140px);">
+					<div *ngFor="let msg of messages; let i = index" class="mb-3">
+						<!-- Date separator -->
+						<div *ngIf="i === 0 || formatDate(msg.sentAt) !== formatDate(messages[i-1].sentAt)" 
+						     class="text-center my-3">
+							<small class="text-muted px-3 py-1 bg-light rounded-pill">{{ formatDate(msg.sentAt) }}</small>
+						</div>
+						
+						<!-- Message -->
+						<div [ngClass]="{'text-end': msg.senderId === currentUser.id, 'text-start': msg.senderId !== currentUser.id}">
+							<div class="d-inline-block" [ngClass]="{'text-end': msg.senderId === currentUser.id}">
+								<span class="d-inline-block px-4 py-2 rounded-3 position-relative" 
+								      [ngStyle]="msg.senderId === currentUser.id ? 
+								                 {'background':'linear-gradient(135deg, #44baff 0%, #0099ff 100%)','color':'#fff'} : 
+								                 {'background':'#f8f9fa','color':'#333'}">
+									{{ msg.message }}
+								</span>
+								<div class="d-flex align-items-center gap-1 mt-1" 
+								     [ngClass]="{'justify-content-end': msg.senderId === currentUser.id}">
+									<small class="text-muted">{{ formatTime(msg.sentAt) }}</small>
+									<i *ngIf="msg.senderId === currentUser.id && msg.isRead" 
+									   class="bi bi-check2-all text-primary" title="Read"></i>
+									<i *ngIf="msg.senderId === currentUser.id && !msg.isRead" 
+									   class="bi bi-check2 text-muted" title="Sent"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Empty messages state -->
+					<div *ngIf="messages.length === 0" class="text-center py-5">
+						<i class="bi bi-chat-text display-4 text-muted"></i>
+						<p class="text-muted mt-3">No messages yet. Start the conversation!</p>
+					</div>
+				</div>
+
+				<!-- Message Input -->
+				<div class="chat-input-bar p-3 border-top" style="background: #f8f9fa; border-radius: 0 0 16px 16px;">
+					<form (ngSubmit)="sendMessage()" class="d-flex align-items-center gap-2">
+						<input [(ngModel)]="messageText" 
+						       name="messageText" 
+						       class="form-control border-0 px-4 py-2 rounded-pill" 
+						       type="text" 
+						       placeholder="Type a message..." 
+						       (keypress)="onKeyPress($event)"
+						       style="background: #fff; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+						<button class="btn btn-post-action px-4 rounded-pill" type="submit" [disabled]="!messageText.trim()">
+							<i class="bi bi-send"></i>
+						</button>
+					</form>
+				</div>
 			</div>
 		</div>
 	</div>

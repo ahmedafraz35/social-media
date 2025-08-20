@@ -165,3 +165,4 @@ C:\Users\MuhammadAtif14\Documents\social-media\backend\SocialMediaApi\obj\Debug\
 C:\Users\MuhammadAtif14\Documents\social-media\backend\SocialMediaApi\obj\Debug\net9.0\SocialMediaApi.pdb
 C:\Users\MuhammadAtif14\Documents\social-media\backend\SocialMediaApi\obj\Debug\net9.0\SocialMediaApi.genruntimeconfig.cache
 C:\Users\MuhammadAtif14\Documents\social-media\backend\SocialMediaApi\obj\Debug\net9.0\ref\SocialMediaApi.dll
+C:\Users\MuhammadAtif14\Documents\social-media\backend\SocialMediaApi\bin\Debug\net9.0\appsettings.Production.json

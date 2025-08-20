@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgIf, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocialMediaService, PostResponse, CommentResponse } from '../services/social-media.service';
+import { AuthService } from '../auth/auth.service';
 import { HttpClientModule } from '@angular/common/http';
 
 @Component({
@@ -19,13 +20,20 @@ export class Home implements OnInit {
   newPostText: string = '';
   newPostImageFile: File | null = null;
   commentTexts: { [key: number]: string } = {};
-  currentUserId: number = 1; // Fixed user ID for demo
+  currentUser: any = null;
 
   constructor(
-    private socialMediaService: SocialMediaService
+    private socialMediaService: SocialMediaService,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
+    this.currentUser = this.authService.getCurrentUser();
+    if (!this.currentUser) {
+      this.router.navigate(['/login']);
+      return;
+    }
     this.loadPosts();
     this.loadProfileImage();
   }
@@ -36,7 +44,6 @@ export class Home implements OnInit {
         this.posts = posts.map(post => ({
           ...post,
           showCommentBox: false,
-          // Map API response to template expectations
           imageUrl: post.imagePath ? `http://localhost:5036${post.imagePath}` : undefined,
           likes: post.likesCount,
           text: post.caption,
@@ -57,7 +64,7 @@ export class Home implements OnInit {
   }
 
   loadProfileImage() {
-    this.profileImage = localStorage.getItem('profileImage') || 'https://randomuser.me/api/portraits/men/32.jpg';
+    this.profileImage = this.currentUser?.profileImage || 'https://randomuser.me/api/portraits/men/32.jpg';
   }
 
   toggleDropdown() {
@@ -65,8 +72,8 @@ export class Home implements OnInit {
   }
 
   logout() {
-    // Simple logout for demo
-    window.location.reload();
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   onPostImageChange(event: any) {
@@ -84,7 +91,6 @@ export class Home implements OnInit {
       this.newPostImageFile || undefined
     ).subscribe({
       next: (post) => {
-        // Map API response to template expectations
         const mappedPost = {
           ...post,
           showCommentBox: false,
@@ -102,7 +108,6 @@ export class Home implements OnInit {
         this.posts.unshift(mappedPost);
         this.newPostText = '';
         this.newPostImageFile = null;
-        // Clear the file input
         const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
       },
@@ -120,7 +125,6 @@ export class Home implements OnInit {
       },
       error: (error: any) => {
         console.error('Error liking post:', error);
-        // Fallback to local increment
         post.likes = (post.likes || 0) + 1;
       }
     });
@@ -129,7 +133,6 @@ export class Home implements OnInit {
   toggleCommentBox(post: any) {
     post.showCommentBox = !post.showCommentBox;
     
-    // Load comments if showing comment box and comments not loaded yet
     if (post.showCommentBox && (!post.comments || post.comments.length === 0)) {
       this.loadPostComments(post.id);
     }
