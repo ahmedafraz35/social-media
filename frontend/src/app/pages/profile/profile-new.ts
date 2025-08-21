@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SocialMediaService, PostResponse } from '../../services/social-media.service';
+import { AuthService } from '../../auth/auth.service';
 import { HttpClientModule } from '@angular/common/http';
 
 @Component({
@@ -19,15 +20,23 @@ export class Profile implements OnInit {
   editIndex: number | null = null;
   editPostText: string = '';
   profileImageFile: File | null = null;
-  currentUserId: number = 1; // Fixed user ID for demo
-  username: string = 'Test User';
+  currentUserId: number = 1;
+  username: string = '';
   profileImage: string = '';
 
   constructor(
-    private socialMediaService: SocialMediaService
+    private socialMediaService: SocialMediaService,
+    private authService: AuthService
   ) {}
 
   async ngOnInit() {
+    // Get current user from AuthService
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.currentUserId = currentUser.id;
+      this.username = currentUser.username;
+      this.profileImage = currentUser.profileImage || 'https://randomuser.me/api/portraits/men/32.jpg';
+    }
     this.loadUserPosts();
     this.loadProfileImage();
   }
@@ -35,6 +44,7 @@ export class Profile implements OnInit {
   loadUserPosts() {
     this.socialMediaService.getUserPosts(this.currentUserId).subscribe({
       next: (posts) => {
+        // Directly map posts, backend should only return user's posts
         this.userPosts = posts.map(post => ({
           ...post,
           imageUrl: post.imagePath,
@@ -118,16 +128,25 @@ export class Profile implements OnInit {
     this.editPostText = '';
   }
 
-  deletePost(index: number) {
+  isDeletingPost: boolean = false;
+  deleteError: string = '';
+  async deletePost(index: number) {
+    this.isDeletingPost = true;
+    this.deleteError = '';
     const post = this.userPosts[index];
-    this.socialMediaService.deletePost(post.id).subscribe({
-      next: () => {
-        this.userPosts.splice(index, 1);
-      },
-      error: (error: any) => {
-        console.error('Error deleting post:', error);
+    try {
+      await this.socialMediaService.deletePost(post.id).toPromise();
+      this.userPosts.splice(index, 1);
+      // Notify home page to remove post if using shared service or event emitter
+      if (window && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('postDeleted', { detail: { postId: post.id } }));
       }
-    });
+    } catch (error: any) {
+      this.deleteError = 'Error deleting post. Please try again.';
+      console.error('Error deleting post:', error);
+    } finally {
+      this.isDeletingPost = false;
+    }
   }
 
   loadProfileImage() {

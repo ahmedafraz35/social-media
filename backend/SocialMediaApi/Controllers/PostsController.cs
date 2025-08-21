@@ -182,18 +182,10 @@ namespace SocialMediaApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeletePost(int id, [FromQuery] int userId)
+    public async Task<ActionResult> DeletePost(int id)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-            {
-                return BadRequest("User not found");
-            }
-
             var post = await _context.Posts
-                .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (post == null)
             {

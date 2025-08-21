@@ -36,6 +36,15 @@ export class Home implements OnInit {
     }
     this.loadPosts();
     this.loadProfileImage();
+      // Listen for postDeleted event from profile page
+      if (window && window.addEventListener) {
+        window.addEventListener('postDeleted', (e: any) => {
+          const postId = e.detail?.postId;
+          if (postId) {
+            this.posts = this.posts.filter(p => p.id !== postId);
+          }
+        });
+      }
   }
 
   loadPosts() {

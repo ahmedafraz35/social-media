@@ -118,16 +118,19 @@
     overflow: hidden;
 }
 
+
 .post-image-container img {
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(100, 175, 255, 0.08);
-    height: 320px !important;
+    height: 650px !important;
     object-fit: cover;
+    margin-bottom: 0.25rem;
+    /* border: 2px solid red; */
 }
 
 .btn-post-action {
     background: #f4f8fc;
-    color: #64afff;
+    color: #000000;
     border-radius: 8px;
     font-weight: 600;
     font-size: 1.08rem;
@@ -202,7 +205,21 @@
     overflow: hidden;
 }
 
-.sidebar-left {
+    /* Make post cards fill more space */
+    .post-card {
+        width: 100%;
+        max-width: 100%;
+        min-height: 600px;
+        margin: 0 auto;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(100, 175, 255, 0.10);
+        background: #fff;
+        padding: 0;
+        overflow: hidden;
+    }
+
+
+.sidebar-left, .sidebar-right {
     background: #f3f3f3;
     border-radius: 16px;
     min-height: 80vh;
@@ -213,23 +230,11 @@
     width: 100%;
     max-width: 300px;
     position: sticky;
-    top: 20px;
+    top: 0;
     align-self: flex-start;
+    z-index: 100;
 }
 
-.sidebar-right {
-    background: #f3f3f3;
-    border-radius: 16px;
-    min-height: 80vh;
-    box-shadow: 0 2px 12px rgba(100, 175, 255, 0.15);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    width: 100%;
-    max-width: 300px;
-    position: sticky;
-    top: 20px;
-    align-self: flex-start;
 @media (max-width: 991px) {
     .post-card {
         max-width: 100%;
@@ -239,9 +244,14 @@
     .sidebar-right {
         max-width: 100%;
         min-width: 0;
+        position: static;
+        top: unset;
     }
 }
-    overflow-x: hidden;
+
+.main-posts {
+    overflow-y: auto;
+    max-height: calc(100vh - 60px); /* Adjust for navbar height if needed */
 }
 
 .post-img {
@@ -252,8 +262,19 @@
     box-shadow: 0 2px 8px rgba(100, 175, 255, 0.08);
     background: #f8f8f8;
     display: block;
-    margin: 0 auto;
-}
+    margin: 0 auto;}
+
+    /* Make post images larger and fill the card */
+    .post-img {
+        height: 650px;
+        object-fit: cover;
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(100, 175, 255, 0.08);
+        background: #f8f8f8;
+        display: block;
+        margin: 0 auto;
+    }
 
 .list-group-item a {
     color: #007bff;
@@ -273,7 +294,7 @@
 }
 
 .card img.img-fluid {
-    max-height: 300px;
+    max-height: 700px;
     object-fit: cover;
 }
 

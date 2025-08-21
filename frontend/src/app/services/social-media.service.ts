@@ -119,7 +119,7 @@ export class SocialMediaService {
   }
 
   deletePost(postId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/posts/${postId}?userId=${this.getCurrentUserId()}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(`${this.baseUrl}/posts/${postId}`, { headers: this.getAuthHeaders() });
   }
 
   // Comment methods
