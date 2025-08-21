@@ -6,6 +6,7 @@ import { Chat } from './pages/chat/chat';
 import { Profile } from './pages/profile/profile';
 import { LoginComponent } from './auth/login/login';
 import { SignupComponent } from './auth/signup/signup';
+import { AiAssistantComponent } from './ai-assistant/ai-assistant.component';
 
 
 export const routes: Routes = [
@@ -25,6 +26,10 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: Profile, canActivate: [AuthGuard]
+  },
+  {
+    path: 'ai-assistant',
+    component: AiAssistantComponent, canActivate: [AuthGuard]
   }
 ];
 
