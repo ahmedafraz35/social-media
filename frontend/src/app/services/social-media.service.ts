@@ -64,9 +64,12 @@ export class SocialMediaService {
   // Helper method to get auth headers
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken');
-    return new HttpHeaders({
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
+    const headers = new HttpHeaders();
+    // Only add Authorization header if we have a token
+    if (token) {
+      return headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
   }
 
   // Helper method to construct full image URLs
@@ -138,4 +141,48 @@ export class SocialMediaService {
   deleteComment(commentId: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/comments/${commentId}?userId=${this.getCurrentUserId()}`, { headers: this.getAuthHeaders() });
   }
+
+  // Product methods
+  createProduct(title: string, description?: string, price?: number, image?: File): Observable<ProductDto> {
+    const formData = new FormData();
+    formData.append('userId', this.getCurrentUserId().toString());
+    formData.append('title', title);
+    if (description) formData.append('description', description);
+    if (price != null) formData.append('price', price.toString());
+    if (image) formData.append('image', image);
+
+    console.log('Calling createProduct API with:', {
+      userId: this.getCurrentUserId(),
+      title,
+      description,
+      price,
+      hasImage: !!image
+    });
+
+    return this.http.post<ProductDto>(`${this.baseUrl}/products`, formData);
+  }
+
+  getAllProducts(): Observable<ProductDto[]> {
+    console.log('Calling getAllProducts API...');
+    return this.http.get<ProductDto[]>(`${this.baseUrl}/products`);
+  }
+
+  getUserProducts(userId: number): Observable<ProductDto[]> {
+    return this.http.get<ProductDto[]>(`${this.baseUrl}/products/user/${userId}`, { headers: this.getAuthHeaders() });
+  }
+
+  deleteProduct(productId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/products/${productId}`, { headers: this.getAuthHeaders() });
+  }
+}
+
+export interface ProductDto {
+  id: number;
+  userId: number;
+  title: string;
+  description?: string;
+  price?: number;
+  imagePath?: string;
+  createdAt: string;
+  username: string;
 }

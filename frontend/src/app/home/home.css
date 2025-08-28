@@ -79,6 +79,28 @@
     font-weight: 500;
 }
 
+.carousel{
+    margin-bottom: 20px;
+    /* border-radius: 50%; */
+    /* border: 2px solid red; */
+}
+.carousel-item img {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    /* border-radius: 20px; */
+}
+
+.daraz-badge {
+    display: inline-block;
+    background: #ff3b30;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
 /* User profile dropdown styles */
 .dropdown-toggle img {
     transition: box-shadow 0.2s;
@@ -336,6 +358,127 @@
     box-shadow: 0 2px 8px rgba(100, 175, 255, 0.07);
     border: none;
 }
+
+/* Stories bar (top of home) */
+.stories-bar {
+    padding: 12px 0;
+    /* center the stories row on wide layouts */
+    display: flex;
+    justify-content: center;
+    background-size: 100% 300%;
+    margin-bottom: 10px;
+    background-color: #f7f7f7;
+}
+.stories-wrapper {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 8px 12px;
+    align-items: center;
+    /* constrain width so the row sits centered within the page */
+    width: 100%;
+    max-width: 760px;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+@keyframes storiesGradient {
+    0% { background-position: 50% 0%; }
+    50% { background-position: 50% 50%; }
+    100% { background-position: 50% 100%; }
+}
+.story-card {
+    width: 100px;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(to top, #44baffcb 0%, #f3f3f3d2 80%, #f3f3f3d2 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    padding: 10px 70px;
+    border-radius: 10px;
+}
+.story-card .story-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+.story-card .story-image img.profile-thumb {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+.story-card.add-story .story-image {
+    background: linear-gradient(135deg, #eaf6ff, #fff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #44baff;
+    border-radius: 50%;
+}
+.story-username {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+    display: block;
+}
+
+/* Hide scrollbar in webkit for sleek look */
+.stories-wrapper::-webkit-scrollbar { height: 6px; }
+.stories-wrapper::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+
+/* Story viewer modal */
+.story-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.story-modal-content {
+    width: 720px;
+    max-width: calc(100% - 48px);
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.story-media img {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.story-close {
+    position: absolute;
+    right: 26px;
+    top: 20px;
+}
+.story-meta { padding: 6px; }
+.story-caption { font-size: 1rem; color: #333; }
+
+/* Professional polish for story card */
+.story-card { cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease; }
+.story-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.12); }
+.story-image { border-radius: 12px; }
+.story-image::after { content: ''; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 3px rgba(255,255,255,0.08); }
 
 .left-side-links:hover {
     color: #44baff;

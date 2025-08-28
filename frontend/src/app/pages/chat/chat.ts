@@ -2,9 +2,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgFor, NgIf, NgClass, NgStyle, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ChatService, ChatUser, ChatMessage, Conversation } from '../../services/chat.service';
 import { AuthService } from '../../auth/auth.service';
+import { SocialMediaService } from '../../services/social-media.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -28,7 +29,9 @@ export class Chat implements OnInit, OnDestroy {
 
   constructor(
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private socialMediaService: SocialMediaService
   ) { }
 
   async ngOnInit() {
@@ -88,6 +91,22 @@ export class Chat implements OnInit, OnDestroy {
         console.log('Chat users loaded successfully:', users);
         this.chatUsers = users;
         this.isLoading = false;
+        
+        // Check for 'with' query parameter to auto-select user
+        this.route.queryParams.subscribe(params => {
+          const withUserId = params['with'];
+          if (withUserId) {
+            console.log('Auto-selecting user with ID:', withUserId);
+            // Find the user in the chat users list
+            const targetUser = this.chatUsers.find(user => user.id == withUserId);
+            if (targetUser) {
+              this.selectUser(targetUser);
+            } else {
+              // If user not in chat list, we need to get user info and add them
+              this.createNewChatWithUser(parseInt(withUserId));
+            }
+          }
+        });
       },
       error: (error) => {
         console.error('Error loading chat users:', error);
@@ -196,5 +215,34 @@ export class Chat implements OnInit, OnDestroy {
     }
 
     return messageDate.toLocaleDateString();
+  }
+
+  createNewChatWithUser(userId: number) {
+    console.log('Creating new chat with user ID:', userId);
+    // Get user information
+    this.socialMediaService.getUser(userId).subscribe({
+      next: (userResponse) => {
+        console.log('User found:', userResponse);
+        // Create a ChatUser object from the user response
+        const chatUser: ChatUser = {
+          id: userResponse.id,
+          username: userResponse.username,
+          profileImage: userResponse.profileImageUrl || `https://randomuser.me/api/portraits/men/${userId % 99}.jpg`
+        };
+        
+        // Add to chat users list if not already present
+        const existingUser = this.chatUsers.find(user => user.id === userId);
+        if (!existingUser) {
+          this.chatUsers.unshift(chatUser); // Add to beginning of list
+        }
+        
+        // Select the user
+        this.selectUser(chatUser);
+      },
+      error: (error) => {
+        console.error('Error fetching user for chat:', error);
+        // Could show a toast or error message here
+      }
+    });
   }
 }

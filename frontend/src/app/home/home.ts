@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgIf, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SocialMediaService, PostResponse, CommentResponse } from '../services/social-media.service';
+import { SocialMediaService, PostResponse, CommentResponse, ProductDto } from '../services/social-media.service';
+import { StoryService, Story } from '../services/story.service';
 import { AuthService } from '../auth/auth.service';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -16,6 +17,15 @@ export class Home implements OnInit {
 
   dropdownOpen = false;
   posts: PostResponse[] = [];
+  stories: Story[] = [];
+  products: ProductDto[] = [];
+  viewerOpen: boolean = false;
+  currentIndex: number = -1;
+
+  get currentStory(): Story | null {
+    if (this.currentIndex >= 0 && this.currentIndex < this.stories.length) return this.stories[this.currentIndex];
+    return null;
+  }
   profileImage: string = '';
   newPostText: string = '';
   newPostImageFile: File | null = null;
@@ -26,6 +36,7 @@ export class Home implements OnInit {
     private socialMediaService: SocialMediaService,
     private authService: AuthService,
     private router: Router
+  , private storyService: StoryService
   ) {}
 
   async ngOnInit() {
@@ -36,6 +47,8 @@ export class Home implements OnInit {
     }
     this.loadPosts();
     this.loadProfileImage();
+    this.loadStories();
+    this.loadProducts();
       // Listen for postDeleted event from profile page
       if (window && window.addEventListener) {
         window.addEventListener('postDeleted', (e: any) => {
@@ -44,7 +57,107 @@ export class Home implements OnInit {
             this.posts = this.posts.filter(p => p.id !== postId);
           }
         });
+
+        // Update stories in real-time when profile uploads a story
+        window.addEventListener('storiesUpdated', (e: any) => {
+          this.loadStories();
+        });
+
+        // Update products in real-time when profile uploads a product
+        window.addEventListener('productsUpdated', (e: any) => {
+          this.loadProducts();
+        });
       }
+  }
+
+  loadStories() {
+    this.stories = this.storyService.getStories();
+  }
+
+  loadProducts() {
+    console.log('Loading products...');
+    this.socialMediaService.getAllProducts().subscribe({
+      next: (products) => {
+        console.log('Products loaded successfully:', products);
+        this.products = products.map(p => ({
+          ...p,
+          imagePath: p.imagePath ? `http://localhost:5036${p.imagePath}` : undefined
+        }));
+        console.log('Processed products:', this.products);
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+        this.products = [];
+      }
+    });
+  }
+
+  startDeal(product: ProductDto) {
+    this.router.navigate(['/chat'], { queryParams: { with: product.userId } });
+  }
+
+  deleteProduct(product: ProductDto) {
+    if (product.userId !== this.currentUser?.id) return;
+    
+    const confirmed = window.confirm('Delete this product? This cannot be undone.');
+    if (!confirmed) return;
+
+    this.socialMediaService.deleteProduct(product.id).subscribe({
+      next: () => {
+        this.loadProducts();
+        if (window && (window as any).dispatchEvent) {
+          window.dispatchEvent(new CustomEvent('productsUpdated', { detail: { deletedId: product.id } }));
+        }
+      },
+      error: (error) => {
+        console.error('Error deleting product:', error);
+      }
+    });
+  }
+
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
+  }
+
+  openStoryViewer(index: number) {
+    this.currentIndex = index;
+    this.viewerOpen = true;
+  }
+
+  closeStoryViewer() {
+    this.viewerOpen = false;
+    this.currentIndex = -1;
+  }
+
+  deleteCurrentStory() {
+    const story = this.currentStory;
+    if (!story) return;
+    // confirm before deleting
+    const confirmed = window.confirm('Delete this story? This cannot be undone.');
+    if (!confirmed) return;
+    const ok = this.storyService.deleteStoryById(story.id);
+    if (ok) {
+      // Refresh stories list and close modal
+      this.loadStories();
+      this.closeStoryViewer();
+      if (window && (window as any).dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('storiesUpdated', { detail: { deletedId: story.id } }));
+      }
+    }
+  }
+
+  nextStory(event?: Event) {
+    if (event) event.stopPropagation();
+    if (this.currentIndex < this.stories.length - 1) {
+      this.currentIndex += 1;
+    }
+  }
+
+  prevStory(event?: Event) {
+    if (event) event.stopPropagation();
+    if (this.currentIndex > 0) {
+      this.currentIndex -= 1;
+    }
   }
 
   loadPosts() {

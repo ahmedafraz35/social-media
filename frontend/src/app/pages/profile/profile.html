@@ -43,7 +43,7 @@
 						<img [src]="profileImage" alt="Profile" class="rounded-circle border border-2 border-info shadow-sm me-4" width="80" height="80">
 						<div>
 							<h3 class="fw-bold mb-1" style="color: #44baff;">{{ username }}</h3>
-							<span class="text-muted fs-5">test@user.com</span>
+							<div class="text-muted fs-6">{{ email || 'Email not available' }}</div>
 						</div>
 					</div>
 					<hr>
@@ -53,7 +53,13 @@
 								<h5 class="side-heading mb-3">Account Details</h5>
 								<ul class="list-group list-group-flush">
 									<li class="list-group-item"><strong>Username:</strong> {{ username }}</li>
-									<li class="list-group-item"><strong>Email:</strong> test@user.com</li>
+									<li class="list-group-item"><strong>Email:</strong> {{ email || 'Not provided' }}</li>
+									<li class="list-group-item d-flex justify-content-between align-items-center">
+										<div><strong>Password:</strong> <span *ngIf="password">{{ showPassword ? password : ('•'.repeat(8)) }}</span><span *ngIf="!password" class="text-muted">Not stored</span></div>
+										<div>
+											<button class="btn btn-sm btn-outline-secondary" type="button" (click)="showPassword = !showPassword" *ngIf="password">{{ showPassword ? 'Hide' : 'Show' }}</button>
+										</div>
+									</li>
 								</ul>
 							</div>
 						</div>
@@ -82,6 +88,34 @@
 									</div>
 									<button class="btn btn-primary" type="submit">Add Post</button>
 								</form>
+								<!-- Add Story -->
+								<form (ngSubmit)="addStory()" class="mb-3">
+									<div class="mb-2">
+										<input type="file" (change)="onStoryImageChange($event)" accept="image/*" class="form-control">
+									</div>
+									<div class="mb-2">
+										<input [(ngModel)]="newStoryCaption" name="newStoryCaption" class="form-control" placeholder="Story caption (optional)">
+									</div>
+									<button class="btn btn-success" type="submit">Add Story</button>
+								</form>
+
+								<!-- Add Product Form -->
+								<h6 class="mt-4 mb-3">Add Product to Marketplace</h6>
+								<form (ngSubmit)="addProduct()" class="mb-3">
+									<div class="mb-2">
+										<input [(ngModel)]="newProductTitle" name="newProductTitle" class="form-control" placeholder="Product title" required>
+									</div>
+									<div class="mb-2">
+										<textarea [(ngModel)]="newProductDescription" name="newProductDescription" class="form-control" placeholder="Product description (optional)" rows="3"></textarea>
+									</div>
+									<div class="mb-2">
+										<input [(ngModel)]="newProductPrice" name="newProductPrice" type="number" step="0.01" class="form-control" placeholder="Price (optional)">
+									</div>
+									<div class="mb-2">
+										<input type="file" (change)="onProductImageChange($event)" accept="image/*" class="form-control">
+									</div>
+									<button class="btn btn-primary" type="submit">Add Product</button>
+								</form>
 								<!-- List Posts -->
 								<div *ngFor="let post of userPosts; let i = index" class="mb-3">
 									<div class="card">
@@ -102,6 +136,34 @@
 												<input type="file" (change)="onPostImageChange($event)" accept="image/*" class="form-control mb-2">
 												<button class="btn btn-success btn-sm" (click)="saveEditPost(i)">Save</button>
 												<button class="btn btn-secondary btn-sm" (click)="cancelEditPost()">Cancel</button>
+											</div>
+										</div>
+									</div>
+									<div class="mt-4">
+										<h5 class="side-heading mb-3">Your Stories</h5>
+										<div class="d-flex gap-3 flex-wrap">
+											<div *ngFor="let s of userStories" class="card p-2" style="width: 140px;">
+												<img [src]="s.imageUrl" class="img-fluid rounded mb-2" style="height:100px; object-fit:cover;">
+												<div class="small fw-semibold">{{ s.username }}</div>
+												<div class="text-muted small">{{ s.createdAt | date:'short' }}</div>
+												<button class="btn btn-sm btn-danger mt-2" (click)="deleteStory(s.id)">Delete Story</button>
+											</div>
+										</div>
+									</div>
+
+									<!-- User's Products Section -->
+									<div class="mt-4">
+										<h5 class="side-heading mb-3">Your Products</h5>
+										<div class="d-flex gap-3 flex-wrap">
+											<div *ngFor="let p of userProducts" class="card p-2" style="width: 180px;">
+												<img *ngIf="p.imagePath" [src]="p.imagePath" class="img-fluid rounded mb-2" style="height:100px; object-fit:cover;">
+												<div class="small fw-semibold">{{ p.title }}</div>
+												<div class="text-muted small">${{ p.price || 'N/A' }}</div>
+												<div class="text-muted small">{{ p.createdAt | date:'short' }}</div>
+												<div class="mt-2 d-flex gap-1">
+													<button class="btn btn-sm btn-primary" (click)="startDeal(p)">Make a Deal</button>
+													<button class="btn btn-sm btn-danger" (click)="deleteUserProduct(p.id)">Delete</button>
+												</div>
 											</div>
 										</div>
 									</div>

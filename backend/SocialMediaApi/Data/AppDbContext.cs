@@ -15,6 +15,7 @@ namespace SocialMediaApi.Data
         public DbSet<Like> Likes { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatRoom> ChatRooms { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -115,6 +116,22 @@ namespace SocialMediaApi.Data
                     .WithMany()
                     .HasForeignKey(d => d.User2Id)
                     .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            // Product configuration
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.ToTable("Products");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Description).HasMaxLength(2000);
+                entity.Property(e => e.ImagePath).HasMaxLength(500);
+                entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany()
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
